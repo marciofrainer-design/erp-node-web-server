@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import * as repo from './repository';
+import { parsePaginationParams } from '../shared/pagination';
 
 export const andarRouter = Router();
 
@@ -21,9 +22,16 @@ andarRouter.get('/GetAll', async (req, res) => {
   const empresaId = req.headers['empresas']
     ? Number(req.headers['empresas'])
     : undefined;
+  const pagination = parsePaginationParams({
+    page: req.query.page,
+    pageCount: req.query.pageCount,
+    limit: req.query.limit,
+  });
+
   try {
     const data = await repo.getAll(
       empresaId && Number.isInteger(empresaId) ? empresaId : undefined,
+      pagination,
     );
     res.json(data);
   } catch (err) {
@@ -60,7 +68,7 @@ andarRouter.post('/', async (req, res) => {
     return;
   }
   try {
-    const data = await repo.save(parsed.data);
+    const data = await repo.post(parsed.data);
     res.status(201).json(data);
   } catch (err) {
     console.error('[Andar] Save error:', err);
@@ -76,7 +84,7 @@ andarRouter.put('/', async (req, res) => {
     return;
   }
   try {
-    const data = await repo.update({ ...parsed.data, id: parsed.data.idandar, nmempresa: '' });
+    const data = await repo.put(parsed.data);
     if (!data) {
       res.status(404).json({ message: 'Andar not found' });
       return;
@@ -96,7 +104,7 @@ andarRouter.delete('/:id', async (req, res) => {
     return;
   }
   try {
-    await repo.remove(id);
+    await repo.delete(id);
     res.status(204).send();
   } catch (err) {
     console.error('[Andar] Delete error:', err);

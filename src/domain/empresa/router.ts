@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import * as repo from './repository';
+import { parsePaginationParams } from '../shared/pagination';
 
 export const empresaRouter = Router();
 
@@ -15,9 +16,15 @@ const EmpresaUpdateSchema = EmpresaBodySchema.extend({
 });
 
 // GET /TEmpresaController/GetAll
-empresaRouter.get('/GetAll', async (_req, res) => {
+empresaRouter.get('/GetAll', async (req, res) => {
+  const pagination = parsePaginationParams({
+    page: req.query.page,
+    pageCount: req.query.pageCount,
+    limit: req.query.limit,
+  });
+
   try {
-    const data = await repo.getAll();
+    const data = await repo.getAll(pagination);
     res.json(data);
   } catch (err) {
     console.error('[Empresa] GetAll error:', err);
@@ -53,7 +60,7 @@ empresaRouter.post('/', async (req, res) => {
     return;
   }
   try {
-    const data = await repo.save(parsed.data);
+    const data = await repo.post(parsed.data);
     res.status(201).json(data);
   } catch (err) {
     console.error('[Empresa] Save error:', err);
@@ -69,7 +76,7 @@ empresaRouter.put('/', async (req, res) => {
     return;
   }
   try {
-    const data = await repo.update({ ...parsed.data, id: parsed.data.idempresa });
+    const data = await repo.put(parsed.data);
     if (!data) {
       res.status(404).json({ message: 'Empresa not found' });
       return;
@@ -89,7 +96,7 @@ empresaRouter.delete('/:id', async (req, res) => {
     return;
   }
   try {
-    await repo.remove(id);
+    await repo.delete(id);
     res.status(204).send();
   } catch (err) {
     console.error('[Empresa] Delete error:', err);

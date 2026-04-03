@@ -8,6 +8,7 @@ import { authenticateRequest } from './middleware/auth';
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
+const SIMULATED_REQUEST_DELAY_MS = 0;
 
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173')
   .split(',')
@@ -27,6 +28,16 @@ app.use(
   }),
 );
 app.use(express.json());
+
+app.use(async (req, _res, next) => {
+  if (req.method === 'OPTIONS' || SIMULATED_REQUEST_DELAY_MS <= 0) {
+    next();
+    return;
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, SIMULATED_REQUEST_DELAY_MS));
+  next();
+});
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

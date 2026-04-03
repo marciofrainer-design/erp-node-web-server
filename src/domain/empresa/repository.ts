@@ -1,42 +1,47 @@
-import { pool } from '../../config/database';
 import type { Empresa } from './types';
+import type { PaginatedResult, PaginationParams } from '../shared/pagination';
+import { RepositoryBase } from '../shared/repositoryBase';
 
-const SELECT =
-  'SELECT idempresa AS id, idempresa, nmfantasia, cnpj, isativo FROM empresa';
+type EmpresaCreate = Pick<Empresa, 'nmfantasia' | 'cnpj' | 'isativo'>;
+type EmpresaUpdate = Pick<Empresa, 'idempresa' | 'nmfantasia' | 'cnpj' | 'isativo'>;
 
-export async function getAll(): Promise<Empresa[]> {
-  const { rows } = await pool.query(`${SELECT} ORDER BY nmfantasia`);
-  return rows;
+class EmpresaRepository extends RepositoryBase<Empresa, EmpresaCreate, EmpresaUpdate> {
+  constructor() {
+    super({
+      selectFields: 'idempresa AS id, idempresa, nmfantasia, cnpj, isativo',
+      selectFrom: 'FROM empresa',
+      selectOrderBy: 'nmfantasia',
+      tableName: 'empresa',
+      tableIdColumn: 'idempresa',
+      selectIdExpression: 'idempresa',
+      createColumns: ['nmfantasia', 'cnpj', 'isativo'],
+      updateColumns: ['nmfantasia', 'cnpj', 'isativo'],
+    });
+  }
+}
+
+const repository = new EmpresaRepository();
+
+export async function getAll(
+  pagination: PaginationParams,
+): Promise<PaginatedResult<Empresa>> {
+  return repository.getAll(pagination);
 }
 
 export async function getById(id: number): Promise<Empresa | null> {
-  const { rows } = await pool.query(`${SELECT} WHERE idempresa = $1`, [id]);
-  return rows[0] ?? null;
+  return repository.getById(id);
 }
 
-export async function save(
-  data: Pick<Empresa, 'nmfantasia' | 'cnpj' | 'isativo'>,
-): Promise<Empresa> {
-  const { rows } = await pool.query(
-    `INSERT INTO empresa (nmfantasia, cnpj, isativo)
-     VALUES ($1, $2, $3)
-     RETURNING idempresa AS id, idempresa, nmfantasia, cnpj, isativo`,
-    [data.nmfantasia, data.cnpj, data.isativo],
-  );
-  return rows[0];
+export async function post(data: EmpresaCreate): Promise<Empresa> {
+  return repository.post(data);
 }
 
-export async function update(data: Empresa): Promise<Empresa | null> {
-  const { rows } = await pool.query(
-    `UPDATE empresa
-     SET nmfantasia = $1, cnpj = $2, isativo = $3
-     WHERE idempresa = $4
-     RETURNING idempresa AS id, idempresa, nmfantasia, cnpj, isativo`,
-    [data.nmfantasia, data.cnpj, data.isativo, data.idempresa],
-  );
-  return rows[0] ?? null;
+export async function put(data: EmpresaUpdate): Promise<Empresa | null> {
+  return repository.put(data);
 }
 
-export async function remove(id: number): Promise<void> {
-  await pool.query('DELETE FROM empresa WHERE idempresa = $1', [id]);
+export async function deleteById(id: number): Promise<void> {
+  await repository.delete(id);
 }
+
+export { deleteById as delete };
