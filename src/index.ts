@@ -8,6 +8,7 @@ import { uhTipoRouter } from './domain/uhTipo/router';
 import { uhRouter } from './domain/uh/router';
 import { edificacaoRouter } from './domain/edificacao/router';
 import { uhclassificacaoRouter } from './domain/uhclassificacao/router';
+import { caracteristicaRouter } from './domain/caracteristica/router';
 import { authenticateRequest } from './middleware/auth';
 
 const app = express();
@@ -56,6 +57,7 @@ app.use('/TUhTipoController', uhTipoRouter);
 app.use('/TUhController', uhRouter);
 app.use('/TEdificacaoController', edificacaoRouter);
 app.use('/TUhclassificacaoController', uhclassificacaoRouter);
+app.use('/TCaracteristicaController', caracteristicaRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ message: 'Not found' });
