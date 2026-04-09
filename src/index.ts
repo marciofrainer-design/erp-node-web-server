@@ -4,6 +4,10 @@ import cors from 'cors';
 import { authRouter } from './domain/auth/router';
 import { empresaRouter } from './domain/empresa/router';
 import { andarRouter } from './domain/andar/router';
+import { uhTipoRouter } from './domain/uhTipo/router';
+import { uhRouter } from './domain/uh/router';
+import { edificacaoRouter } from './domain/edificacao/router';
+import { uhclassificacaoRouter } from './domain/uhclassificacao/router';
 import { authenticateRequest } from './middleware/auth';
 
 const app = express();
@@ -48,6 +52,10 @@ app.use(authenticateRequest);
 
 app.use('/TEmpresaController', empresaRouter);
 app.use('/TAndarController', andarRouter);
+app.use('/TUhTipoController', uhTipoRouter);
+app.use('/TUhController', uhRouter);
+app.use('/TEdificacaoController', edificacaoRouter);
+app.use('/TUhclassificacaoController', uhclassificacaoRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ message: 'Not found' });
