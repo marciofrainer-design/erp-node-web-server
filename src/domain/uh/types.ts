@@ -1,3 +1,13 @@
+export type UhCaracteristica = {
+  idcaracteristica: number;
+  dscaracteristica: string;
+  dsabreviatura: string;
+  fltipo: number;
+  flsituacao: number;
+  isprincipal: number;
+  empresa_dsabreviatura: string;
+};
+
 export type Uh = {
   id: number;
   iduh: number;
@@ -13,4 +23,5 @@ export type Uh = {
   iduhclassificacao: number;
   isativo: number;
   isacessibilidade: number;
+  caracteristicas: UhCaracteristica[];
 };

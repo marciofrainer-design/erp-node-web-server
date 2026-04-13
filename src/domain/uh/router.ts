@@ -5,6 +5,11 @@ import { parsePaginationParams } from '../shared/pagination';
 
 export const uhRouter = Router();
 
+const UhCaracteristicaInputSchema = z.object({
+  idcaracteristica: z.number().int().positive(),
+  isprincipal: z.number().int().min(0).max(1).default(0),
+});
+
 const UhBodySchema = z.object({
   idempresa: z.number().int().positive(),
   cduh: z.string().min(1).max(20),
@@ -16,6 +21,7 @@ const UhBodySchema = z.object({
   iduhclassificacao: z.number().int().min(1).default(1),
   isativo: z.number().int().min(0).max(1).default(1),
   isacessibilidade: z.number().int().min(0).max(1).default(0),
+  caracteristicas: z.array(UhCaracteristicaInputSchema).default([]),
 });
 
 const UhUpdateSchema = UhBodySchema.extend({
