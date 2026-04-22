@@ -1,6 +1,7 @@
 import type { Andar } from './types';
 import type { PaginatedResult, PaginationParams } from '../shared/pagination';
 import { RepositoryBase } from '../shared/repositoryBase';
+import { AndarSchema } from './schema';
 
 type AndarCreate = Pick<Andar, 'idempresa' | 'cdandar' | 'nmandar' | 'isativo'>;
 type AndarUpdate = Pick<Andar, 'idandar' | 'idempresa' | 'cdandar' | 'nmandar' | 'isativo'>;

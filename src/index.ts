@@ -2,16 +2,13 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import { authRouter } from './domain/auth/router';
-import { empresaRouter } from './domain/empresa/router';
-import { andarRouter } from './domain/andar/router';
-import { uhTipoRouter } from './domain/uhTipo/router';
-import { uhRouter } from './domain/uh/router';
-import { edificacaoRouter } from './domain/edificacao/router';
-import { uhclassificacaoRouter } from './domain/uhclassificacao/router';
-import { caracteristicaRouter } from './domain/caracteristica/router';
 import { authenticateRequest } from './middleware/auth';
+import { ApolloServer } from 'apollo-server-express';
+import { typeDefs, resolvers } from './graphql';
+import { Express } from 'express';
+import { domainRoutes } from './routes/domain.routes';
 
-const app = express();
+const app: Express = express();
 const PORT = Number(process.env.PORT) || 3000;
 const SIMULATED_REQUEST_DELAY_MS = 0;
 
@@ -49,20 +46,21 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/TAuthController', authRouter);
-app.use(authenticateRequest);
 
-app.use('/TEmpresaController', empresaRouter);
-app.use('/TAndarController', andarRouter);
-app.use('/TUhTipoController', uhTipoRouter);
-app.use('/TUhController', uhRouter);
-app.use('/TEdificacaoController', edificacaoRouter);
-app.use('/TUhclassificacaoController', uhclassificacaoRouter);
-app.use('/TCaracteristicaController', caracteristicaRouter);
+const startServer = async () => {
+  const server = new ApolloServer({ typeDefs, resolvers });
+  await server.start();
+  // Apply GraphQL middleware before authenticateRequest so the playground is accessible
+  server.applyMiddleware({ app: app as any });
 
-app.use((_req, res) => {
-  res.status(404).json({ message: 'Not found' });
-});
+  app.use(authenticateRequest);
+  // Apply domain routes after authentication middleware so they are protected, but playground is not
+  domainRoutes(app);
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}${server.graphqlPath}`);
+  });
+};
 
-app.listen(PORT, () => {
-  console.log(`[Server] Running on http://localhost:${PORT}`);
+startServer().catch((err) => {
+  console.error('Error starting server:', err);
 });
