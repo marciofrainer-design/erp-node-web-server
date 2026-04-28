@@ -1,55 +1,70 @@
-import { IResolvers } from "@graphql-tools/utils";
-import { AddCheckinArgs, AddHospedeArgs, AddReservaArgs } from "./schema";
-import { databaseFactory } from "../config/database.factory";
+import { IResolvers } from '@graphql-tools/utils';
+import type {
+  HospedesArgs, HospedeByIdArgs,
+  AddHospedeArgs, UpdateHospedeArgs,
+  ReservasArgs, ReservaByIdArgs,
+  AddReservaArgs, UpdateReservaArgs,
+  CheckinsArgs, CheckinByIdArgs,
+  AddCheckinArgs, UpdateCheckinArgs,
+} from './schema';
+import * as hospedeRepo from '../domain/hospedes/repository';
+import * as reservaRepo from '../domain/reservas/repository';
+import * as checkinRepo from '../domain/checkin_checkout/repository';
 
 export const resolvers: IResolvers = {
   Query: {
-    user: async () => {
-      return databaseFactory
-        .getPool()
-        .query("SELECT * FROM users WHERE id = $1", [1])
-        .then((res) => res.rows[0]);
-    },
-    uh: async () => {
-      // Fetch uh from database
-    },
-    uhTipos: async () => {
-      // Fetch uhTipos from database
-    },
-    edificacoes: async () => {
-      // Fetch edificacoes from database
-    },
-    andares: async () => {
-      // Fetch andares from database
-    },
-    uhcaracteristicas: async () => {
-      // Fetch uhcaracteristicas from database
-    },
-    hospedes: async () => {
-      // Fetch hospedes from database
-    },
-    reservas: async () => {
-      // Fetch reservas from database
-    },
-    checkins: async () => {
-      // Fetch checkins from database
-    },
+    hospedes: (_: unknown, { idempresa }: HospedesArgs) =>
+      hospedeRepo.getAll(idempresa),
+
+    hospede: (_: unknown, { id }: HospedeByIdArgs) =>
+      hospedeRepo.getById(Number(id)),
+
+    reservas: (_: unknown, { idempresa }: ReservasArgs) =>
+      reservaRepo.getAll(idempresa),
+
+    reserva: (_: unknown, { id }: ReservaByIdArgs) =>
+      reservaRepo.getById(Number(id)),
+
+    checkins: (_: unknown, { idreserva }: CheckinsArgs) =>
+      checkinRepo.getAll(idreserva),
+
+    checkin: (_: unknown, { id }: CheckinByIdArgs) =>
+      checkinRepo.getById(Number(id)),
   },
+
   Mutation: {
-    addHospede: async (_: unknown, { nome, email }: AddHospedeArgs) => {
-      // Add hospede to database
+    addHospede: (_: unknown, args: AddHospedeArgs) =>
+      hospedeRepo.post(args),
+
+    updateHospede: (_: unknown, { id, ...data }: UpdateHospedeArgs) =>
+      hospedeRepo.put({ ...data, idhospede: Number(id) } as Parameters<typeof hospedeRepo.put>[0]),
+
+    deleteHospede: async (_: unknown, { id }: HospedeByIdArgs) => {
+      await hospedeRepo.deleteById(Number(id));
+      return true;
     },
-    addReserva: async (
-      _: unknown,
-      { hospedeId, dataInicio, dataFim }: AddReservaArgs,
-    ) => {
-      // Add reserva to database
+
+    addReserva: (_: unknown, args: AddReservaArgs) =>
+      reservaRepo.post(args as Parameters<typeof reservaRepo.post>[0]),
+
+    updateReserva: (_: unknown, { id, status }: UpdateReservaArgs) =>
+      reservaRepo.put({ idreserva: Number(id), status } as Parameters<typeof reservaRepo.put>[0]),
+
+    deleteReserva: async (_: unknown, { id }: ReservaByIdArgs) => {
+      await reservaRepo.deleteById(Number(id));
+      return true;
     },
-    addCheckin: async (
-      _: unknown,
-      { reservaId, dataCheckIn, dataCheckOut }: AddCheckinArgs,
-    ) => {
-      // Add checkin to database
+
+    addCheckin: (_: unknown, args: AddCheckinArgs) =>
+      checkinRepo.post(args as Parameters<typeof checkinRepo.post>[0]),
+
+    updateCheckin: (_: unknown, { id, ...data }: UpdateCheckinArgs) =>
+      checkinRepo.put({ ...data, idcheckin: Number(id) } as Parameters<typeof checkinRepo.put>[0]),
+
+    deleteCheckin: async (_: unknown, { id }: CheckinByIdArgs) => {
+      await checkinRepo.deleteById(Number(id));
+      return true;
     },
   },
 };
+

@@ -1,29 +1,24 @@
-import { CheckInCheckOutRepository } from './repository';
+import * as repo from './repository';
+import type { CheckInCreate, CheckInUpdate } from './schema';
 
 export class CheckInCheckOutService {
-  private repository: CheckInCheckOutRepository;
-
-  constructor() {
-    this.repository = new CheckInCheckOutRepository();
-  }
-
-  async findAll() {
-    return this.repository.findAll();
+  async findAll(idreserva?: number) {
+    return repo.getAll(idreserva);
   }
 
   async findById(id: string) {
-    return this.repository.findById(id);
+    return repo.getById(Number(id));
   }
 
-  async create(data: any) {
-    return this.repository.create(data);
+  async create(data: CheckInCreate) {
+    return repo.post(data);
   }
 
-  async update(id: string, data: any) {
-    return this.repository.update(id, data);
+  async update(id: string, data: CheckInUpdate) {
+    return repo.put({ ...data, idcheckin: Number(id) });
   }
 
   async delete(id: string) {
-    return this.repository.delete(id);
+    return repo.deleteById(Number(id));
   }
 }

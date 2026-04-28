@@ -7,7 +7,7 @@
     "dev": "ts-node src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "migrate": "tsx src/migrate.ts"
+    "migrate": "ts-node src/migrate.ts"
   },
   "dependencies": {
     "@testing-library/jest-dom": "^6.9.1",

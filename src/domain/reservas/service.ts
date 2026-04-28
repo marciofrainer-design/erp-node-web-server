@@ -1,29 +1,24 @@
-import { ReservaRepository } from './repository';
+import * as repo from './repository';
+import type { ReservaCreate, ReservaUpdate } from './schema';
 
 export class ReservaService {
-  private repository: ReservaRepository;
-
-  constructor() {
-    this.repository = new ReservaRepository();
-  }
-
-  async findAll() {
-    return this.repository.findAll();
+  async findAll(idempresa?: number) {
+    return repo.getAll(idempresa);
   }
 
   async findById(id: string) {
-    return this.repository.findById(id);
+    return repo.getById(Number(id));
   }
 
-  async create(data: any) {
-    return this.repository.create(data);
+  async create(data: ReservaCreate) {
+    return repo.post(data);
   }
 
-  async update(id: string, data: any) {
-    return this.repository.update(id, data);
+  async update(id: string, data: ReservaUpdate) {
+    return repo.put({ ...data, idreserva: Number(id) });
   }
 
   async delete(id: string) {
-    return this.repository.delete(id);
+    return repo.deleteById(Number(id));
   }
 }

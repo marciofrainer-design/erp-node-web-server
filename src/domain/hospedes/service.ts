@@ -1,29 +1,24 @@
-import { HospedeRepository } from './repository';
+import * as repo from './repository';
+import type { HospedeCreate, HospedeUpdate } from './schema';
 
 export class HospedeService {
-  private repository: HospedeRepository;
-
-  constructor() {
-    this.repository = new HospedeRepository();
-  }
-
-  async findAll() {
-    return this.repository.findAll();
+  async findAll(idempresa?: number) {
+    return repo.getAll(idempresa);
   }
 
   async findById(id: string) {
-    return this.repository.findById(id);
+    return repo.getById(Number(id));
   }
 
-  async create(data: any) {
-    return this.repository.create(data);
+  async create(data: HospedeCreate) {
+    return repo.post(data);
   }
 
-  async update(id: string, data: any) {
-    return this.repository.update(id, data);
+  async update(id: string, data: HospedeUpdate) {
+    return repo.put({ ...data, idhospede: Number(id) });
   }
 
   async delete(id: string) {
-    return this.repository.delete(id);
+    return repo.deleteById(Number(id));
   }
 }

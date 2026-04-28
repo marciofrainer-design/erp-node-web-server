@@ -1,53 +1,109 @@
 import { gql } from 'apollo-server-express';
 
+export interface HospedesArgs { idempresa?: number; }
+export interface HospedeByIdArgs { id: string; }
+
 export interface AddHospedeArgs {
+  idempresa: number;
   nome: string;
-  email: string;
+  documento: string;
+  telefone?: string;
+  email?: string;
 }
+export interface UpdateHospedeArgs {
+  id: string;
+  nome?: string;
+  documento?: string;
+  telefone?: string;
+  email?: string;
+}
+
+export interface ReservasArgs { idempresa?: number; }
+export interface ReservaByIdArgs { id: string; }
 
 export interface AddReservaArgs {
-  hospedeId: string;
-  dataInicio: string;
-  dataFim: string;
+  idempresa: number;
+  idhospede: number;
+  iduh: number;
+  dataentrada: string;
+  datasaida: string;
+  status?: string;
+}
+export interface UpdateReservaArgs {
+  id: string;
+  status: string;
 }
 
+export interface CheckinsArgs { idreserva?: number; }
+export interface CheckinByIdArgs { id: string; }
+
 export interface AddCheckinArgs {
-  reservaId: string;
-  dataCheckIn: string;
-  dataCheckOut: string;
+  idreserva: number;
+  datacheckin?: string;
+  datacheckout?: string;
+  status?: string;
+}
+export interface UpdateCheckinArgs {
+  id: string;
+  datacheckin?: string;
+  datacheckout?: string;
+  status?: string;
 }
 
 export const typeDefs = gql`
   type Hospede {
     id: ID!
+    idhospede: Int!
+    idempresa: Int!
     nome: String!
-    email: String!
+    documento: String!
+    telefone: String
+    email: String
+    isativo: Int!
   }
 
   type Reserva {
     id: ID!
-    hospedeId: ID!
-    dataInicio: String!
-    dataFim: String!
+    idreserva: Int!
+    idempresa: Int!
+    idhospede: Int!
+    iduh: Int!
+    dataentrada: String!
+    datasaida: String!
+    status: String!
+    isativo: Int!
   }
 
   type Checkin {
     id: ID!
-    reservaId: ID!
-    dataCheckIn: String!
-    dataCheckOut: String!
+    idcheckin: Int!
+    idreserva: Int!
+    datacheckin: String
+    datacheckout: String
+    status: String!
   }
 
   type Query {
-    hospedes: [Hospede!]!
-    reservas: [Reserva!]!
-    checkins: [Checkin!]!
+    hospedes(idempresa: Int): [Hospede!]!
+    hospede(id: ID!): Hospede
+    reservas(idempresa: Int): [Reserva!]!
+    reserva(id: ID!): Reserva
+    checkins(idreserva: Int): [Checkin!]!
+    checkin(id: ID!): Checkin
   }
 
   type Mutation {
-    addHospede(nome: String!, email: String!): Hospede!
-    addReserva(hospedeId: ID!, dataInicio: String!, dataFim: String!): Reserva!
-    addCheckin(reservaId: ID!, dataCheckIn: String!, dataCheckOut: String!): Checkin!
+    addHospede(idempresa: Int!, nome: String!, documento: String!, telefone: String, email: String): Hospede!
+    updateHospede(id: ID!, nome: String, documento: String, telefone: String, email: String): Hospede
+    deleteHospede(id: ID!): Boolean!
+
+    addReserva(idempresa: Int!, idhospede: Int!, iduh: Int!, dataentrada: String!, datasaida: String!, status: String): Reserva!
+    updateReserva(id: ID!, status: String!): Reserva
+    deleteReserva(id: ID!): Boolean!
+
+    addCheckin(idreserva: Int!, datacheckin: String, datacheckout: String, status: String): Checkin!
+    updateCheckin(id: ID!, datacheckin: String, datacheckout: String, status: String): Checkin
+    deleteCheckin(id: ID!): Boolean!
   }
 `;
 
